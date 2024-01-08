@@ -168,7 +168,7 @@ export const downloadWord = async (req, res) => {
     res.end(converted);
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
-    res.status(500).json({ error: "Error al generar el archivo Word" });
+    return res.status(500).json({ error: "Error al generar el archivo Word" });
   }
 };
 
