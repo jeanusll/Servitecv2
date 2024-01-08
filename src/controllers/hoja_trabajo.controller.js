@@ -163,6 +163,7 @@ export const downloadWord = async (req, res) => {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
+      "Content-Length": contentLength,
     });
     res.end(converted);
   } catch (error) {
