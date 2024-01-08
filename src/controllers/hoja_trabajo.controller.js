@@ -157,8 +157,7 @@ export const downloadWord = async (req, res) => {
 
     const converted = htmlDocx.asBlob(htmlContent);
 
-    const size = Buffer.byteLength(converted, "utf-8");
-    console.log(size);
+    const size = converted.size;
 
     res.writeHead(200, {
       "Content-Type":
