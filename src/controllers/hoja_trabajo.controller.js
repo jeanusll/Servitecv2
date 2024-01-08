@@ -156,14 +156,14 @@ export const downloadWord = async (req, res) => {
     htmlContent += `</tbody></table></body></html>`;
 
     const converted = await htmlDocx.asBlob(htmlContent);
-    const buffer = await Buffer.from(converted);
 
     res.writeHead(200, {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
     });
-    res.end(buffer); // Send the Buffer directly
+
+    res.end(converted);
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
     res.status(500).json({ error: "Error al generar el archivo Word" });
