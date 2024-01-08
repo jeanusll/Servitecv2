@@ -71,6 +71,8 @@ const colorDescriptions = {
   PURPLE: "VENTA",
 };
 
+import fs from "fs"; // Módulo de manejo de archivos de Node.js
+
 export const downloadWord = async (req, res) => {
   const { date } = req.params;
 
@@ -154,20 +156,30 @@ export const downloadWord = async (req, res) => {
     });
 
     htmlContent += `</tbody></table></body></html>`;
-    const converted = htmlDocx.asBlob(htmlContent);
-    console.log(converted);
-    res.writeHead(200, {
-      "Content-Type":
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
-    });
-    res.end(converted);
+
+    const docxBuffer = htmlDocx.asBlob(htmlContent);
+
+    const filePath = "./temporal.docx"; // Ruta temporal para guardar el archivo
+    fs.writeFileSync(filePath, Buffer.from(docxBuffer));
+
+    // Configurar los encabezados de la respuesta
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=hoja_trabajo.docx"
+    );
+
+    // Enviar el archivo .docx como respuesta
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
     res.status(500).json({ error: "Error al generar el archivo Word" });
   }
 };
-
 const groupServicesByClient = (servicios) => {
   return servicios.reduce((accumulator, servicio) => {
     const { cliente } = servicio;
