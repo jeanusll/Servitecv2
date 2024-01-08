@@ -156,26 +156,18 @@ export const downloadWord = async (req, res) => {
     htmlContent += `</tbody></table></body></html>`;
 
     const converted = htmlDocx.asBlob(htmlContent);
+    console.log(converted);
 
-    if (!converted) {
-      return res
-        .status(500)
-        .json({ message: "Error al convertir el contenido a Word" });
-    }
-
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=hoja_trabajo.docx"
-    );
-
-    res.status(200).send(converted); // Enviar el archivo al cliente
+    res.writeHead(200, {
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
+      "Content-Length": converted.length,
+    });
+    res.end(converted);
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
-    return res.status(500).json({ error: "Error al generar el archivo Word" });
+    res.status(500).json({ error: "Error al generar el archivo Word" });
   }
 };
 
