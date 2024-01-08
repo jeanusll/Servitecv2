@@ -1,0 +1,42 @@
+{
+  "name": "serviteclucio-v1.2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env NODE_ENV=development nodemon src/index.js --ignore client",
+    "start": "cross-env NODE_ENV=production node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/lab": "^5.0.0-alpha.159",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.10",
+    "docx": "^8.5.0",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "html-docx-js": "^0.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.6.0",
+    "moment-timezone": "^0.5.43",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "pdfkit": "^0.14.0",
+    "pdfmake": "^0.2.8",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.2"
+  }
+}
