@@ -1,3 +1,5 @@
+import { fileURLToPath } from "url";
+import path, { dirname } from "path";
 import morgan from "morgan";
 import express from "express";
 import cors from "cors";
@@ -15,6 +17,9 @@ import hoja_trabajoRoutes from "./routes/hoja_trabajo.routes.js";
 import programarRoutes from "./routes/programar.routes.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 app.use(
@@ -38,5 +43,12 @@ app.use("/api", cargaRoutes);
 app.use("/api", servicioRoutes);
 app.use("/api", hoja_trabajoRoutes);
 app.use("/api", programarRoutes);
+
+const frontendBuildPath = path.join(__dirname, "public", "dist");
+app.use(express.static(frontendBuildPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, "index.html"));
+});
 
 export { app };
