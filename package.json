@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/lab": "^5.0.0-alpha.159",
     "bcryptjs": "^2.4.3",
+    "blob-to-buffer": "^1.2.9",
     "body-parser": "^1.20.2",
     "buffer": "^6.0.3",
     "cookie-parser": "^1.4.6",
