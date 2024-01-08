@@ -128,7 +128,7 @@ export const downloadWord = async (req, res) => {
         <table>
           <tbody>`;
 
-    serviciosPorCliente.forEach((servicio, index) => {
+    serviciosPorCliente.forEach(async (servicio, index) => {
       const { cliente, servicios } = servicio;
       const { productos, comentarios, numeroLlamada } =
         makeDescription(servicios);
@@ -155,15 +155,14 @@ export const downloadWord = async (req, res) => {
 
     htmlContent += `</tbody></table></body></html>`;
 
-    console.log(htmlContent);
+    const converted = await htmlDocx.asBlob(htmlContent);
 
-    const converted = htmlDocx.asBlob(htmlContent);
+    res.set("Content-Length", converted.length);
 
     res.writeHead(200, {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
-      "Content-Length": converted.length,
     });
     res.end(converted);
   } catch (error) {
