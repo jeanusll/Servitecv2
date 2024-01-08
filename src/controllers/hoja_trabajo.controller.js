@@ -157,11 +157,12 @@ export const downloadWord = async (req, res) => {
 
     const converted = htmlDocx.asBlob(htmlContent);
 
+    const contentLength = converted.length || 0;
+
     res.writeHead(200, {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
-      "Content-Length": converted.length,
     });
     res.end(converted);
   } catch (error) {
