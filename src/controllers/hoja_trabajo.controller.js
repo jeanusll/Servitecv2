@@ -156,7 +156,7 @@ export const downloadWord = async (req, res) => {
     htmlContent += `</tbody></table></body></html>`;
 
     const converted = htmlDocx.asBlob(htmlContent);
-    console.log(converted);
+    console.log(converted.Blob);
     console.log(typeof converted);
 
     res.writeHead(200, {
