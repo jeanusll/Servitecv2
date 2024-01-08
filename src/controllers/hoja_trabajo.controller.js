@@ -1,6 +1,6 @@
 import Servicio from "../models/servicio.model.js";
 import htmlDocx from "html-docx-js";
-
+import { Buffer } from "buffer";
 const distritos = [
   "YURA",
   "CERRO COLORADO",
@@ -128,7 +128,7 @@ export const downloadWord = async (req, res) => {
         <table>
           <tbody>`;
 
-    serviciosPorCliente.forEach(async (servicio, index) => {
+    serviciosPorCliente.forEach((servicio, index) => {
       const { cliente, servicios } = servicio;
       const { productos, comentarios, numeroLlamada } =
         makeDescription(servicios);
@@ -156,21 +156,19 @@ export const downloadWord = async (req, res) => {
     htmlContent += `</tbody></table></body></html>`;
 
     const converted = await htmlDocx.asBlob(htmlContent);
-
-    res.set("Content-Length", converted.length);
+    const buffer = await Buffer.from(converted);
 
     res.writeHead(200, {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
     });
-    res.end(converted);
+    res.end(buffer); // Send the Buffer directly
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
     res.status(500).json({ error: "Error al generar el archivo Word" });
   }
 };
-
 const groupServicesByClient = (servicios) => {
   return servicios.reduce((accumulator, servicio) => {
     const { cliente } = servicio;
