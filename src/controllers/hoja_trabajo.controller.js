@@ -1,8 +1,5 @@
 import Servicio from "../models/servicio.model.js";
-import htmlDocx from "html-docx-js";
-import fs from "fs";
-import streamifier from "streamifier";
-
+import ExcelJS from "exceljs";
 const distritos = [
   "YURA",
   "CERRO COLORADO",
@@ -73,7 +70,7 @@ const colorDescriptions = {
   PURPLE: "VENTA",
 };
 
-export const downloadWord = async (req, res) => {
+export const downloadExcel = async (req, res) => {
   const { date } = req.params;
 
   const day = new Date(date);
@@ -90,94 +87,125 @@ export const downloadWord = async (req, res) => {
 
   const serviciosPorCliente = groupServicesByClient(sortedServicios);
 
-  let htmlContent = `<!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <style>          
-          table {
-            width: 100%;
-            border-collapse: collapse;            
-          }
-          th, td {
-            border: 1px solid black;
-            font-weight: bold;
-            font-size: 8pt;
-          }
-          .green-text {
-            color: green;
-          }
-          .red-text {
-            color: red;
-          }
-          .purple-text {
-            color: purple;
-          }
-          .yellow-background {
-            background-color: yellow;
-          }
-          .comment-text {
-            background-color: yellow;
-            color: red;
-          }
-          .yellow-cell {
-            background-color: yellow;
-          }
-        </style>
-      </head>
-      <body>
-        <table>
-          <tbody>`;
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Servicios");
 
-  serviciosPorCliente.forEach((servicio, index) => {
+  worksheet.columns = [
+    { header: "Número de Llamada", key: "numeroLlamada", width: 15 },
+    { header: "Descripción", key: "descripcion", width: 80 },
+    { header: "Turno", key: "turno", width: 10 },
+    { header: "Color", key: "color", width: 15 },
+    { header: "Encargado", key: "encargado", width: 20 },
+  ];
+
+  serviciosPorCliente.forEach((servicio) => {
     const { cliente, servicios } = servicio;
     const { productos, comentarios, numeroLlamada } =
       makeDescription(servicios);
     const turno = servicios[0].turno.toUpperCase();
-    const descripcion = `${cliente.nombre_apellido.toUpperCase()} <span class="red-text">${cliente.num_telefono.toUpperCase()}</span> <span class="purple-text">${cliente.distrito.toUpperCase()}</span> ${cliente.direccion.toUpperCase()} Ref/ ${cliente.referencia.toUpperCase()} - ${productos.toUpperCase()} <span class="comment-text">${comentarios.toUpperCase()}</span>`;
-    const turnoClass = turno === "T/M" || turno === "T/T" ? "yellow-cell" : "";
-    const lastRow =
-      index === serviciosPorCliente.length - 1
-        ? "border-bottom: 1px solid black;"
-        : "";
-    htmlContent += `<tr style="${lastRow}">
-        <td class="green-text">${numeroLlamada.toUpperCase()}</td>
-        <td>${descripcion}</td>
-        <td class="${turnoClass}">${turno}</td>
-        <td style=" background-color:${servicios[0].color}">${
-      colorDescriptions[servicios[0].color]
-        ? colorDescriptions[servicios[0].color]
-        : ""
-    }</td>
-        <td>${servicios[0].encargado.toUpperCase()}</td>
-      </tr>`;
-  });
 
-  htmlContent += `</tbody></table></body></html>`;
+    const row = worksheet.addRow({
+      numeroLlamada: numeroLlamada.toUpperCase(),
+      descripcion: "",
+      turno,
+      color: colorDescriptions[servicios[0].color],
+      encargado: servicios[0].encargado.toUpperCase(),
+    });
 
-  const converted = htmlDocx.asBlob(htmlContent);
-  const bufferStream = streamifier.createReadStream(converted);
+    const descriptionText = [
+      { text: cliente.nombre_apellido.toUpperCase(), font: { bold: true } },
+      {
+        text: ` ${cliente.num_telefono.toUpperCase()} `,
+        font: { color: { argb: "FF0000" }, bold: true },
+      },
+      {
+        text: ` ${cliente.distrito.toUpperCase()} `,
+        font: { color: { argb: "800080" }, bold: true },
+      },
+      {
+        text: ` ${cliente.direccion.toUpperCase()} Ref/ ${cliente.referencia.toUpperCase()} - ${productos.toUpperCase()} `,
+        font: { bold: true },
+      },
+      {
+        text: `${comentarios.toUpperCase()}`,
+        font: { color: { argb: "FF0000" }, bold: true },
+      },
+    ];
+    worksheet.getCell(`A${row.number}`).value = {
+      richText: [
+        {
+          text: numeroLlamada.toUpperCase(),
+          font: { bold: true, color: { argb: "008000" } }, // Texto en negrita y color verde
+        },
+      ],
+    };
 
-  const fileName = "hoja_trabajo.docx";
-  const filePath = `./${fileName}`;
+    worksheet.getCell(`B${row.number}`).value = { richText: descriptionText };
 
-  const fileWriteStream = fs.createWriteStream(filePath);
-  bufferStream.pipe(fileWriteStream);
+    const turnoCell = worksheet.getCell(`C${row.number}`);
+    turnoCell.font = { bold: true };
+    if (turno === "T/M" || turno === "T/T") {
+      turnoCell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFFF00" },
+      };
+    }
 
-  fileWriteStream.on("finish", async () => {
-    await res.download(fileName, function (err) {
-      if (err) {
-        res.end();
-      } else {
-        res.end();
-      }
+    const colorCell = worksheet.getCell(`D${row.number}`);
+    if (colorDescriptions[servicios[0].color]) {
+      colorCell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: getColorCode(servicios[0].color) },
+      };
+      colorCell.font = { bold: true };
+    }
+
+    row.eachCell({ includeEmpty: true }, (cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+      cell.alignment = {
+        wrapText: true,
+        vertical: "middle",
+      };
     });
   });
 
-  fileWriteStream.on("error", (err) => {
-    console.error("Error al guardar el archivo:", err);
-    res.status(500).json({ error: "Error al generar el archivo Word" });
-  });
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader("Content-Disposition", "attachment; filename=servicios.xlsx");
+
+  await workbook.xlsx.write(res);
+
+  res.end();
+};
+
+const getColorCode = (colorDescription) => {
+  switch (colorDescription) {
+    case "PINK":
+      return "FFC0CB"; // Rosa
+    case "GRAY":
+      return "808080"; // Gris
+    case "BLUE":
+      return "0000FF"; // Azul
+    case "YELLOW":
+      return "FFFF00"; // Amarillo
+    case "ORANGE":
+      return "FFA500"; // Naranja
+    case "RED":
+      return "FF0000"; // Rojo
+    case "PURPLE":
+      return "800080"; // Morado
+    default:
+      return "FFFFFF"; // Blanco (si no hay coincidencia)
+  }
 };
 
 const groupServicesByClient = (servicios) => {
