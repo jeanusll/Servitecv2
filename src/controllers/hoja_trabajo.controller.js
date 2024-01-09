@@ -74,22 +74,21 @@ const colorDescriptions = {
 export const downloadWord = async (req, res) => {
   const { date } = req.params;
 
-  try {
-    const day = new Date(date);
+  const day = new Date(date);
 
-    const servicios = await Servicio.find({ fecha_visita: day }).populate({
-      path: "cliente",
-      select: "nombre_apellido num_telefono distrito direccion referencia",
-    });
+  const servicios = await Servicio.find({ fecha_visita: day }).populate({
+    path: "cliente",
+    select: "nombre_apellido num_telefono distrito direccion referencia",
+  });
 
-    if (servicios.length === 0)
-      return res.status(500).json({ message: "No hay servicios para mostrar" });
+  if (servicios.length === 0)
+    return res.status(500).json({ message: "No hay servicios para mostrar" });
 
-    const sortedServicios = ordenarServiciosPorDistrito(servicios);
+  const sortedServicios = ordenarServiciosPorDistrito(servicios);
 
-    const serviciosPorCliente = groupServicesByClient(sortedServicios);
+  const serviciosPorCliente = groupServicesByClient(sortedServicios);
 
-    let htmlContent = `<!DOCTYPE html>
+  let htmlContent = `<!DOCTYPE html>
       <html lang="es">
       <head>
         <meta charset="UTF-8">
@@ -128,46 +127,40 @@ export const downloadWord = async (req, res) => {
         <table>
           <tbody>`;
 
-    serviciosPorCliente.forEach((servicio, index) => {
-      const { cliente, servicios } = servicio;
-      const { productos, comentarios, numeroLlamada } =
-        makeDescription(servicios);
-      const turno = servicios[0].turno.toUpperCase();
-      const descripcion = `${cliente.nombre_apellido.toUpperCase()} <span class="red-text">${cliente.num_telefono.toUpperCase()}</span> <span class="purple-text">${cliente.distrito.toUpperCase()}</span> ${cliente.direccion.toUpperCase()} Ref/ ${cliente.referencia.toUpperCase()} - ${productos.toUpperCase()} <span class="comment-text">${comentarios.toUpperCase()}</span>`;
-      const turnoClass =
-        turno === "T/M" || turno === "T/T" ? "yellow-cell" : "";
-      const lastRow =
-        index === serviciosPorCliente.length - 1
-          ? "border-bottom: 1px solid black;"
-          : "";
-      htmlContent += `<tr style="${lastRow}">
+  serviciosPorCliente.forEach((servicio, index) => {
+    const { cliente, servicios } = servicio;
+    const { productos, comentarios, numeroLlamada } =
+      makeDescription(servicios);
+    const turno = servicios[0].turno.toUpperCase();
+    const descripcion = `${cliente.nombre_apellido.toUpperCase()} <span class="red-text">${cliente.num_telefono.toUpperCase()}</span> <span class="purple-text">${cliente.distrito.toUpperCase()}</span> ${cliente.direccion.toUpperCase()} Ref/ ${cliente.referencia.toUpperCase()} - ${productos.toUpperCase()} <span class="comment-text">${comentarios.toUpperCase()}</span>`;
+    const turnoClass = turno === "T/M" || turno === "T/T" ? "yellow-cell" : "";
+    const lastRow =
+      index === serviciosPorCliente.length - 1
+        ? "border-bottom: 1px solid black;"
+        : "";
+    htmlContent += `<tr style="${lastRow}">
         <td class="green-text">${numeroLlamada.toUpperCase()}</td>
         <td>${descripcion}</td>
         <td class="${turnoClass}">${turno}</td>
         <td style=" background-color:${servicios[0].color}">${
-        colorDescriptions[servicios[0].color]
-          ? colorDescriptions[servicios[0].color]
-          : ""
-      }</td>
+      colorDescriptions[servicios[0].color]
+        ? colorDescriptions[servicios[0].color]
+        : ""
+    }</td>
         <td>${servicios[0].encargado.toUpperCase()}</td>
       </tr>`;
-    });
+  });
 
-    htmlContent += `</tbody></table></body></html>`;
+  htmlContent += `</tbody></table></body></html>`;
 
-    const converted = htmlDocx.asBlob(htmlContent);
+  const converted = htmlDocx.asBlob(htmlContent);
 
-    res.writeHead(200, {
-      "Content-Type":
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
-      "Content-Length": converted.length,
-    });
-    res.end(converted);
-  } catch (error) {
-    console.error("Error al generar el archivo Word:", error);
-    res.status(500).json({ error: "Error al generar el archivo Word" });
-  }
+  res.writeHead(200, {
+    "Content-Type":
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
+  });
+  res.end(converted);
 };
 
 const groupServicesByClient = (servicios) => {
