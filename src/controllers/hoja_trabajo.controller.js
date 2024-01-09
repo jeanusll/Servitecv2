@@ -1,5 +1,7 @@
 import Servicio from "../models/servicio.model.js";
 import htmlDocx from "html-docx-js";
+import fs from "fs";
+import streamifier from "streamifier";
 
 const distritos = [
   "YURA",
@@ -154,13 +156,29 @@ export const downloadWord = async (req, res) => {
   htmlContent += `</tbody></table></body></html>`;
 
   const converted = htmlDocx.asBlob(htmlContent);
+  const bufferStream = streamifier.createReadStream(converted);
 
-  res.writeHead(200, {
-    "Content-Type":
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "Content-Disposition": "attachment; filename=hoja_trabajo.docx",
+  const fileName = "hoja_trabajo.docx";
+  const filePath = `./${fileName}`;
+
+  const fileWriteStream = fs.createWriteStream(filePath);
+  bufferStream.pipe(fileWriteStream);
+
+  fileWriteStream.on("finish", async () => {
+    await res.download(fileName, function (err) {
+      if (err) {
+        res.end();
+      } else {
+        res.end();
+        fs.unlinkSync(`./${fileName}`);
+      }
+    });
   });
-  res.end(converted);
+
+  fileWriteStream.on("error", (err) => {
+    console.error("Error al guardar el archivo:", err);
+    res.status(500).json({ error: "Error al generar el archivo Word" });
+  });
 };
 
 const groupServicesByClient = (servicios) => {
