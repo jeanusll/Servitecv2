@@ -24,7 +24,7 @@ const __dirname = dirname(__filename);
 const app = express();
 app.use(
   cors({
-    origin: "https://servitecv2-production.up.railway.app",
+    origin: "https://backend-servitec-01ed2e03f18a.herokuapp.com",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
