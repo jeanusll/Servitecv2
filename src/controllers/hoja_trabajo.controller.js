@@ -170,7 +170,6 @@ export const downloadWord = async (req, res) => {
         res.end();
       } else {
         res.end();
-        fs.unlinkSync(`./${fileName}`);
       }
     });
   });
