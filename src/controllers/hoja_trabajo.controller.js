@@ -72,6 +72,8 @@ const colorDescriptions = {
 };
 
 import fs from "fs";
+import Docxtemplater from "docxtemplater";
+
 export const downloadWord = async (req, res) => {
   const { date } = req.params;
 
@@ -157,26 +159,21 @@ export const downloadWord = async (req, res) => {
     htmlContent += `</tbody></table></body></html>`;
 
     const converted = htmlDocx.asBlob(htmlContent);
+    console.log(converted);
 
-    const fileName = "temporal1.docx";
-    const filePath = `./${fileName}`;
-    fs.writeFileSync(filePath, converted, "binary");
-
-    res.download(filePath, (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error downloading" });
-        res.end();
-      } else {
-        res.status(200);
-        res.end();
-      }
+    res.set({
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Disposition": "attachment; filename=documento_word.docx",
     });
+
+    res.send(converted);
   } catch (error) {
     console.error("Error al generar el archivo Word:", error);
     res.status(500).json({ error: "Error al generar el archivo Word" });
   }
 };
+
 const groupServicesByClient = (servicios) => {
   return servicios.reduce((accumulator, servicio) => {
     const { cliente } = servicio;
