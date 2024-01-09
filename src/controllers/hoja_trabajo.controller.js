@@ -158,7 +158,7 @@ export const downloadWord = async (req, res) => {
 
     const converted = htmlDocx.asBlob(htmlContent);
 
-    const fileName = "temporal.docx";
+    const fileName = "temporal1.docx";
     const filePath = `./${fileName}`;
     fs.writeFileSync(filePath, converted, "binary");
 
