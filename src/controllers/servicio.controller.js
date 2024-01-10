@@ -180,6 +180,7 @@ export const getAllServicios = async (req, res) => {
   try {
     const count = await Servicio.countDocuments();
     const servicios = await Servicio.find()
+      .sort({ createdAt: -1 })
       .populate({ path: "cliente", select: "nombre_apellido" })
       .skip((page - 1) * perPage)
       .limit(perPage);
@@ -220,6 +221,7 @@ export const findServicio = async (req, res) => {
       },
     ],
   })
+    .sort({ createdAt: -1 })
     .skip(skipAmount)
     .limit(perPage)
     .populate("cliente");

@@ -98,7 +98,7 @@ export const getAllClientes = async (req, res) => {
 
   try {
     const clientes = await Cliente.find()
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
       .populate("hist_servicios");
@@ -130,6 +130,7 @@ export const findCliente = async (req, res) => {
         { dni: { $regex: data, $options: "i" } },
       ],
     })
+      .sort({ createdAt: -1 })
       .skip(skipAmount)
       .limit(perPage)
       .populate("hist_servicios");
