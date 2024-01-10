@@ -19,6 +19,10 @@ const cargaSchema = new Schema({
   estado_entrega: String,
   comentario: String,
   encargado: { type: String, default: "No se encargó un técnico" },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 cargaSchema.pre("findByIdAndDelete", async function (next) {

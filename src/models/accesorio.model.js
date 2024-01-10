@@ -8,6 +8,10 @@ const accesorioSchema = new Schema({
   descripcion: { type: String },
   num_vendidos: { type: Number },
   categoria: { type: String },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export default mongoose.model("Accesorio", accesorioSchema);

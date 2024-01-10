@@ -23,6 +23,10 @@ const ventaSchema = new Schema({
     },
   ],
   comentario: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 ventaSchema.pre("findByIdAndDelete", async function (next) {

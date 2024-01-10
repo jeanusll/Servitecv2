@@ -32,6 +32,10 @@ const clienteSchema = new Schema({
   ],
   comentario: String,
   dni: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 clienteSchema.pre("save", function (next) {

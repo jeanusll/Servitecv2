@@ -34,6 +34,10 @@ const servicioSchema = new Schema({
     type: String,
     default: "",
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 servicioSchema.pre("save", function (next) {

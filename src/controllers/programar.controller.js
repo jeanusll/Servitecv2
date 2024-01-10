@@ -6,8 +6,7 @@ export const programar = async (req, res) => {
 
   let client;
 
-  if (cliente._id !== "") {
-    console.log("Entrandooo");
+  if (cliente._id !== "" && cliente._id != undefined) {
     client = await Cliente.findById(cliente._id);
 
     if (!client) {
