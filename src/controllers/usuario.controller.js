@@ -20,11 +20,7 @@ export const register = async (req, res) => {
       username: user.username,
     });
 
-    res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV !== "development",
-      secure: true,
-      sameSite: "none",
-    });
+    res.cookie("token", token);
 
     res.json({ message: "Usuario creado correctamente" });
   } catch (err) {
@@ -74,11 +70,7 @@ export const login = async (req, res) => {
     username: user.username,
   });
 
-  res.cookie("token", token, {
-    httpOnly: process.env.NODE_ENV !== "development",
-    secure: true,
-    sameSite: "none",
-  });
+  res.cookie("token", token);
 
   return res.json({ name: user.nombre, _id: user._id });
 };
