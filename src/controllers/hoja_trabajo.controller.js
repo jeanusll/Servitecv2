@@ -131,7 +131,7 @@ export const downloadExcel = async (req, res) => {
         font: { color: { argb: "FF0000" }, bold: true },
       },
     ];
-    if (servicios[0] == "REVISION") {
+    if (servicios[0].tipo_servicio == "REVISION") {
       worksheet.getCell(`A${row.number}`).value = {
         richText: [
           {
