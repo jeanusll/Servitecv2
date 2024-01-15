@@ -120,7 +120,8 @@ export const findCliente = async (req, res) => {
   const perPage = 50;
 
   try {
-    const { data } = req.body;
+    let { data } = req.body;
+    data = data.replace(/\s+/g, " ").trim().toUpperCase();
     const skipAmount = (page - 1) * perPage;
 
     const clientesEncontrados = await Cliente.find({

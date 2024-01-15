@@ -131,14 +131,25 @@ export const downloadExcel = async (req, res) => {
         font: { color: { argb: "FF0000" }, bold: true },
       },
     ];
-    worksheet.getCell(`A${row.number}`).value = {
-      richText: [
-        {
-          text: numeroLlamada.toUpperCase(),
-          font: { bold: true, color: { argb: "008000" } }, // Texto en negrita y color verde
-        },
-      ],
-    };
+    if (servicios[0] == "REVISION") {
+      worksheet.getCell(`A${row.number}`).value = {
+        richText: [
+          {
+            text: numeroLlamada.toUpperCase(),
+            font: { bold: true, color: { argb: "008000" } }, // Texto en negrita y color verde
+          },
+        ],
+      };
+    } else {
+      worksheet.getCell(`A${row.number}`).value = {
+        richText: [
+          {
+            text: numeroLlamada.toUpperCase(),
+            font: { bold: true }, // Texto en negrita y color verde
+          },
+        ],
+      };
+    }
 
     worksheet.getCell(`B${row.number}`).value = { richText: descriptionText };
 
