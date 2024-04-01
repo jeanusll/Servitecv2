@@ -129,6 +129,7 @@ export const findCliente = async (req, res) => {
         { nombre_apellido: { $regex: data, $options: "i" } },
         { num_telefono: { $regex: data, $options: "i" } },
         { dni: { $regex: data, $options: "i" } },
+        { direccion: { $regex: data, $options: "i" } },
       ],
     })
       .sort({ createdAt: -1 })
