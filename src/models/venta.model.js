@@ -3,26 +3,27 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const ventaSchema = new Schema({
-  cantidad: Number,
   fecha: {
     type: Date,
     default: Date.now,
   },
   total: Number,
-  descripcion: String,
   cliente: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cliente",
     required: true,
   },
-  accesorio: [
+  accesorios: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Accesorio",
-      required: true,
+      cantidad: Number,
+      acesorio: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Accesorio",
+        required: true,
+      },
+      total: Number,
     },
   ],
-  comentario: String,
   createdAt: {
     type: Date,
     default: Date.now,

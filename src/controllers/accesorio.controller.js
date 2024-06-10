@@ -104,3 +104,41 @@ export const getAccesorio = async (req, res) => {
     return;
   }
 };
+
+export const findAccesorio = async (req, res) => {
+  const page = req.query.page || 1;
+  const perPage = 50;
+
+  try {
+    let { data } = req.body;
+    data = data.replace(/\s+/g, " ").trim().toUpperCase();
+    const skipAmount = (page - 1) * perPage;
+
+    const accesoriosEncontrados = await Accesorio.find({
+      $or: [
+        { nombre: { $regex: data, $options: "i" } },
+        { categoria: { $regex: data, $options: "i" } },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .skip(skipAmount)
+      .limit(perPage);
+
+    const totalAccesorios = await Accesorio.countDocuments({
+      $or: [
+        { nombre: { $regex: data, $options: "i" } },
+        { categoria: { $regex: data, $options: "i" } },
+      ],
+    });
+
+    res.json({
+      accesorios: accesoriosEncontrados,
+      currentPage: page,
+      totalPages: Math.ceil(totalAccesorios / perPage),
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Hubo un error al obtener los accesorios" });
+  }
+};
