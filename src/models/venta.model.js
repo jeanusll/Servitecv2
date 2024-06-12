@@ -1,5 +1,6 @@
-import Cliente from "./cliente.model.js";
 import mongoose from "mongoose";
+import Counter from "./counter.model.js";
+
 const Schema = mongoose.Schema;
 
 const ventaSchema = new Schema({
@@ -7,16 +8,17 @@ const ventaSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  serial: { type: String, unique: true },
   total: Number,
-  cliente: {
+  cliente_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cliente",
-    required: true,
   },
+  nombre_cliente: String,
   accesorios: [
     {
       cantidad: Number,
-      acesorio: {
+      accesorio: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Accesorio",
         required: true,
@@ -24,34 +26,25 @@ const ventaSchema = new Schema({
       total: Number,
     },
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
 });
 
-ventaSchema.pre("findByIdAndDelete", async function (next) {
-  const ventaId = this.getQuery()["_id"];
-  const clienteId = this.getQuery()["cliente"];
-
-  try {
-    const venta = await this.populate("accesorio").execPopulate();
-
-    if (venta) {
-      venta.accesorio.stock += venta.cantidad;
-      await venta.accesorio.save();
+ventaSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findByIdAndUpdate(
+        { _id: "ventaId" },
+        { $inc: { sequence_value: 1 } },
+        { new: true, upsert: true }
+      );
+      this.serial = counter.sequence_value.toString().padStart(6, "0");
+    } catch (err) {
+      console.error("Error al generar el serial:", err);
+      throw err;
     }
-
-    await Cliente.findByIdAndUpdate(clienteId, {
-      $pull: {
-        hist_venta: ventaId,
-      },
-    });
-
-    next();
-  } catch (err) {
-    next(err);
   }
+  next();
 });
 
-export default mongoose.model("Venta", ventaSchema);
+const Venta = mongoose.model("Venta", ventaSchema);
+
+export default Venta;

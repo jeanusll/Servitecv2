@@ -10,10 +10,10 @@ import {
   getVentaCliente,
 } from "../controllers/venta.controller.js";
 
-router.get("/venta", getAllVentas);
+router.get("/ventas", getAllVentas);
 router.post("/venta", createVenta);
-router.put("/venta", updateVenta);
-router.delete("/venta", deleteVenta);
+router.put("/venta/:id", updateVenta);
+router.delete("/venta/:id", deleteVenta);
 
 router.get("/venta/:id_venta", getVenta);
 router.get("/ventas/:id_cliente", getVentaCliente);
