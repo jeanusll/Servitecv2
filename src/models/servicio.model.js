@@ -76,19 +76,21 @@ servicioSchema.pre("save", function (next) {
 });
 
 servicioSchema.post("save", async function (doc) {
-  try {
-    const cliente = await Cliente.findById(doc.cliente);
+  if (doc.isNew) {
+    try {
+      const cliente = await Cliente.findById(doc.cliente);
 
-    if (cliente) {
-      cliente.hist_servicios.push(doc._id);
-      await cliente.save();
+      if (cliente) {
+        cliente.hist_servicios.push(doc._id);
+        await cliente.save();
+      }
+    } catch (error) {
+      console.error(
+        "Error al actualizar el historial de servicios del cliente:",
+        error
+      );
+      throw error;
     }
-  } catch (error) {
-    console.error(
-      "Error al actualizar el historial de servicios del cliente:",
-      error
-    );
-    throw error;
   }
 });
 

@@ -13,7 +13,6 @@ import {
 router.get("/clientes", getAllClientes);
 router.post("/cliente", createCliente);
 router.post("/cliente/find", findCliente);
-router.put("/cliente/:id", updateCliente);
 router.delete("/cliente/:id", deleteCliente);
 
 router.get("/cliente/:id", getCliente);

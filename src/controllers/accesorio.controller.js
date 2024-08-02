@@ -142,3 +142,48 @@ export const findAccesorio = async (req, res) => {
       .json({ message: "Hubo un error al obtener los accesorios" });
   }
 };
+
+export const searchAccesorio = async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const perPage = 10;
+
+  let { data } = req.body;
+  const query = data || "";
+  const regex = new RegExp(query.replace(/\s+/g, " ").trim(), "i");
+  const skipAmount = (page - 1) * perPage;
+
+  try {
+    let accesorios = await Accesorio.find({
+      $or: [
+        { nombre: { $regex: regex } },
+        { descripcion: { $regex: regex } },
+        { categoria: { $regex: regex } },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .skip(skipAmount)
+      .limit(perPage)
+      .exec();
+
+    const totalAccesorios = await Accesorio.countDocuments({
+      $or: [
+        { nombre: { $regex: regex } },
+        { descripcion: { $regex: regex } },
+        { categoria: { $regex: regex } },
+      ],
+    });
+
+    if (accesorios.length === 0) {
+      return res.status(404).json({ message: "Accesorio no encontrado" });
+    }
+
+    res.json({
+      accesorios: accesorios,
+      currentPage: page,
+      totalPages: Math.ceil(totalAccesorios / perPage),
+    });
+  } catch (error) {
+    console.error("Error al buscar el accesorio:", error);
+    res.status(500).json({ message: "Hubo un error al buscar el accesorio" });
+  }
+};

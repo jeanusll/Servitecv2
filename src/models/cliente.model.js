@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Servicio from "./servicio.model.js";
-
+import Venta from "./venta.model.js";
 const Schema = mongoose.Schema;
 
 const clienteSchema = new Schema({
@@ -22,12 +22,6 @@ const clienteSchema = new Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Venta",
-    },
-  ],
-  hist_carga: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Carga",
     },
   ],
   comentario: String,
@@ -77,8 +71,8 @@ clienteSchema.pre("findOneAndDelete", async function (next) {
     const cliente = await this.model.findOne(condition);
 
     if (cliente) {
-      const deleted = await Servicio.deleteMany({ cliente: cliente._id });
-      console.log(deleted);
+      await Servicio.deleteMany({ cliente: cliente._id });
+      await Venta.deleteMany({ cliente: cliente._id });
     }
     next();
   } catch (error) {

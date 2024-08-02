@@ -10,11 +10,10 @@ const ventaSchema = new Schema({
   },
   serial: { type: String, unique: true },
   total: Number,
-  cliente_id: {
+  cliente: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cliente",
   },
-  nombre_cliente: String,
   accesorios: [
     {
       cantidad: Number,
