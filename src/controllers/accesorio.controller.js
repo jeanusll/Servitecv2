@@ -22,7 +22,7 @@ export const createAccesorio = async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(500).json({
-      message: "Hubo un error al guardar el accesorio: " + err.message,
+      message: "Hubo un error al guardar el accesorio " + err.message,
     });
     return;
   }
